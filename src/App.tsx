@@ -1,13 +1,17 @@
-import Person from './components/Person.tsx';
-import Product from './components/Product.tsx';
+import Weather from './components/Weather.tsx';
+import UserStatus from './components/UserStatus.tsx';
 
 const App = () => {
   return (
     <>
-      <Person name={'Some user'} age={24} />
-      <Product name={'Some product'}>
-        <p>Children content projection for Product card</p>
-      </Product>
+      <Weather temperature={10} />
+      <Weather temperature={22} />
+      <Weather temperature={36} />
+      <hr />
+
+      <UserStatus isLoggedIn={false} isAdmin={false} />
+      <UserStatus isLoggedIn={true} isAdmin={false} />
+      <UserStatus isLoggedIn={true} isAdmin={true} />
     </>
   );
 };
