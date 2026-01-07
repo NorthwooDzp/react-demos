@@ -1,11 +1,11 @@
-import UsersList from './components/UsersList.tsx';
-import ProductsList from './components/ProductsList.tsx';
+import Person from './components/Person.tsx';
+import Product from './components/Product.tsx';
 
 const App = () => {
   return (
     <>
-      <UsersList />
-      <ProductsList />
+      <Person name={'Some user'} age={24} />
+      <Product name={'Some product'} />
     </>
   );
 };
