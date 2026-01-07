@@ -5,7 +5,9 @@ const App = () => {
   return (
     <>
       <Person name={'Some user'} age={24} />
-      <Product name={'Some product'} />
+      <Product name={'Some product'}>
+        <p>Children content projection for Product card</p>
+      </Product>
     </>
   );
 };
