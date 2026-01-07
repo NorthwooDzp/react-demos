@@ -1,5 +1,9 @@
 const Header = () => {
-  const linkItems = ['Home', 'About', 'Contact'].map((el) => <a href="#">{el}</a>);
+  const linkItems = ['Home', 'About', 'Contact'].map((el) => (
+    <a key={el} href="#">
+      {el}
+    </a>
+  ));
 
   return (
     <header>

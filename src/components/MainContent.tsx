@@ -1,12 +1,17 @@
+import WelcomeMessage from './WelcomeMessage.tsx';
+import Greeting from './Greeting.tsx';
+import ProductInfo from './ProductInfo.tsx';
+
 const MainContent = () => {
   return (
-    <main>
-      <h2>Main content</h2>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad distinctio eius explicabo iste iure iusto
-        nihil recusandae, repellendus vitae voluptas?
-      </p>
-    </main>
+    <>
+      <main>
+        <h2>Main content</h2>
+        <WelcomeMessage />
+      </main>
+      <Greeting />
+      <ProductInfo />
+    </>
   );
 };
 
