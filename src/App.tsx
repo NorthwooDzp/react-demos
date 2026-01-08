@@ -1,17 +1,22 @@
-import Weather from './components/Weather.tsx';
-import UserStatus from './components/UserStatus.tsx';
+import { useState } from 'react';
 
 const App = () => {
+  const [counter, setCounter] = useState<number>(0);
+
+  function increaseCount(): void {
+    setCounter(counter + 1);
+  }
+
+  setTimeout(() => {
+    setCounter(40);
+  }, 5000);
+
   return (
     <>
-      <Weather temperature={10} />
-      <Weather temperature={22} />
-      <Weather temperature={36} />
-      <hr />
-
-      <UserStatus isLoggedIn={false} isAdmin={false} />
-      <UserStatus isLoggedIn={true} isAdmin={false} />
-      <UserStatus isLoggedIn={true} isAdmin={true} />
+      <h1>{counter}</h1>
+      <button type="button" onClick={increaseCount}>
+        Increase count
+      </button>
     </>
   );
 };
