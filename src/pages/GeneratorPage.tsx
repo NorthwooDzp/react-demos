@@ -1,5 +1,69 @@
+import Canvas from '../components/Canvas.tsx';
+import { useState } from 'react';
+import Spinner from '../components/Spinner.tsx';
+import type { PokAIMon } from '../models';
+
+const API_URL: string = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+
 const GeneratorPage = () => {
-  return <div>Generator Page</div>;
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastResult, setLastResult] = useState<PokAIMon | null>(null);
+
+  const handleGenerate = async (base64: string): Promise<void> => {
+    setIsGenerating(true);
+    try {
+      setError(null);
+
+      const result = await fetch(`${API_URL}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doodle_data: base64 }),
+      });
+      if (!result.ok) {
+        throw new Error('Failed to generate');
+      }
+
+      const json = await result.json();
+      setLastResult(json);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : JSON.stringify(e));
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+      <Canvas disabled={isGenerating} onGenerate={handleGenerate} />
+
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg flex flex-col items-center justify-center transition-colors">
+        <h2 className="text-xl font-semibold mb-4 text-center text-gray-900 dark:text-white">PokAImon Result</h2>
+        <div className="relative w-full aspect-square border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-gray-700 overflow-hidden p-2">
+          {!lastResult && !isGenerating && (
+            <div className="text-center text-gray-500 dark:text-gray-400">
+              <p>Your generated PokAImon will appear here.</p>
+            </div>
+          )}
+          {isGenerating && <Spinner label="Generating your pokemon" />}
+        </div>
+        {error && <div className="mt-4 text-red-500 dark:text-red-400 text-sm text-center">{error}</div>}
+        {lastResult && (
+          <div className="w-full mt-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{lastResult.name}</h3>
+            {lastResult.type && (
+              <span className="text-xs px-2 py-1 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200">
+                {lastResult.type}
+              </span>
+            )}
+            {lastResult.characteristics && (
+              <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{lastResult.characteristics}</p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default GeneratorPage;

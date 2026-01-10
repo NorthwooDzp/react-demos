@@ -36,7 +36,7 @@ export function ApiKeyProvider({ children }: ApiKeyProviderProps): JSX.Element {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useApiKey(): ApiKeyContextType {
-  const context = useContext(ApiKeyContext);
+  const context: ApiKeyContextType | null = useContext(ApiKeyContext);
   if (!context) {
     throw new Error('useApiKey must be used within an ApiKeyProvider');
   }

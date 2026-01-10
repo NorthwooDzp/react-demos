@@ -1,5 +1,10 @@
 import { type RefObject, useEffect, useRef, useState } from 'react';
 
+interface CanvasProps {
+  disabled: boolean;
+  onGenerate: (base64: string) => Promise<void>;
+}
+
 interface DrawingRefValue {
   isDrawing: boolean;
   lastX: number;
@@ -19,7 +24,7 @@ const COLORS = [
   '#FFFFFF',
 ];
 
-const Canvas = () => {
+const Canvas = ({ onGenerate, disabled }: CanvasProps) => {
   const canvasRef: RefObject<HTMLCanvasElement | null> = useRef(null);
   const [activeColor, setActiveColor] = useState(COLORS[0]);
   const drawingRef: RefObject<DrawingRefValue> = useRef({ isDrawing: false, lastX: 0, lastY: 0 });
@@ -82,7 +87,58 @@ const Canvas = () => {
       drawingRef.current.lastX = x;
       drawingRef.current.lastY = y;
     };
+
+    const draw = (e: MouseEvent | TouchEvent): void => {
+      if (!drawingRef.current.isDrawing) {
+        return;
+      }
+      e.preventDefault();
+      const { x, y } = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(drawingRef.current.lastX, drawingRef.current.lastY);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = activeColor;
+      ctx.stroke();
+      drawingRef.current.lastX = x;
+      drawingRef.current.lastY = y;
+    };
+
+    const stop = (): void => {
+      drawingRef.current.isDrawing = false;
+    };
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stop);
+    canvas.addEventListener('mouseleave', stop);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stop);
+    return () => {
+      canvas.removeEventListener('mousedown', start);
+      canvas.removeEventListener('mousemove', draw);
+      canvas.removeEventListener('mouseup', stop);
+      canvas.removeEventListener('mouseleave', stop);
+      canvas.removeEventListener('touchstart', start);
+      canvas.removeEventListener('touchmove', draw);
+      canvas.removeEventListener('touchend', stop);
+    };
   }, [activeColor]);
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const handleGenerate = async () => {
+    const canvas = canvasRef.current!;
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64 = dataUrl.split(',')[1];
+    onGenerate?.(base64);
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg flex flex-col transition-colors">
@@ -110,6 +166,22 @@ const Canvas = () => {
        overflow-hidden touch-none bg-white"
       >
         <canvas ref={canvasRef} className="absolute inset-0"></canvas>
+      </div>
+
+      <div className="mt-6 flex flex-col sm:flex-row gap-4">
+        <button
+          className="w-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+          onClick={clearCanvas}
+        >
+          Clear Canvas
+        </button>
+        <button
+          disabled={disabled}
+          onClick={handleGenerate}
+          className="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+        >
+          Generate
+        </button>
       </div>
     </div>
   );
